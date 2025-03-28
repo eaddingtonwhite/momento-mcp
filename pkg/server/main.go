@@ -41,15 +41,7 @@ func main() {
 		},
 	})
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	go func() {
-		mcpServer.ServerMustStart()
-	}()
-
-	<-ctx.Done()
-	log.Println("Shutting down server gracefully...")
+	mcpServer.ServerMustStart()
 }
 
 type bootStrapConfig struct {
@@ -133,6 +125,10 @@ func (m MomentoMcpServer) ServerMustStart() {
 		if err != nil {
 			panic(err)
 		}
+		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+		defer stop()
+		<-ctx.Done()
+		log.Println("Shutting down server gracefully...")
 	}
 }
 
